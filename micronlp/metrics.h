@@ -14,7 +14,7 @@ int edit_distance(string source, string target, int substitution_cost = 1) {
     int n = source.length();
     int m = target.length();
 
-    int dist[n+1][m+1] = {0};
+    int dist[n + 1][m + 1] = {0};
 
     for (int i = 1; i <= n; i++) {
         dist[i][0] = i;
@@ -24,15 +24,11 @@ int edit_distance(string source, string target, int substitution_cost = 1) {
     }
     for (auto i = 1; i <= source.length(); i++) {
         for (auto j = 1; j <= target.length(); j++) {
-            dist[i][j] = min({dist[i-1][j] + 1, dist[i-1][j-1] + (source[i-1] != target[j-1] ? substitution_cost : 0), dist[i][j-1] + 1});
+            dist[i][j] = min(
+                    {dist[i - 1][j] + 1, dist[i - 1][j - 1] + (source[i - 1] != target[j - 1] ? substitution_cost : 0),
+                     dist[i][j - 1] + 1});
         }
     }
     return dist[n][m];
 }
 
-float perplexity() {
-    // Compute the logarithm with base 2
-    float score = 0;
-    float log_base2 = (score != 0) ?  log2(5) : -INFINITY;
-    return log_base2;
-}
