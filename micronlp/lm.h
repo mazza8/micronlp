@@ -15,25 +15,7 @@ public:
         order = o;
     }
 
-    vector<string> pad_sentence(vector<string> sentence) {
-        sentence.insert(sentence.begin(), order - 1, "<s>");
-        sentence.insert(sentence.end(), order - 1, "</s>");
-        return sentence;
-    }
-
-    vector<vector<string>> build_ngrams(vector<string> sentence) {
-        vector<vector<string>> ngrams;
-        for (int i = 0; i <= sentence.size() - order; i++) {
-            vector<string> current_ngram = {sentence.begin() + i, sentence.begin() + i + order};
-            ngrams.insert(ngrams.end(), current_ngram);
-            ngrams_counts[join({current_ngram.begin(), current_ngram.end() - 1})][current_ngram[(current_ngram.size() -
-                                                                                                 1)]] += 1;
-        }
-        return ngrams;
-    }
-
     void fit(vector<vector<string>> corpus) {
-        cout << ngrams_counts["ab"]["c"] << endl;
         for (vector<string> &sentence: corpus) {
             vector<string> padded_sentence = pad_sentence(sentence);
             vector<vector<string>> sentence_ngrams = build_ngrams(padded_sentence);
@@ -62,5 +44,21 @@ private:
             out += string;
         }
         return out;
+    }
+    vector<string> pad_sentence(vector<string> sentence) {
+        sentence.insert(sentence.begin(), order - 1, "<s>");
+        sentence.insert(sentence.end(), order - 1, "</s>");
+        return sentence;
+    }
+
+    vector<vector<string>> build_ngrams(vector<string> sentence) {
+        vector<vector<string>> ngrams;
+        for (long unsigned int i = 0; i <= sentence.size() - order; i++) {
+            vector<string> current_ngram = {sentence.begin() + i, sentence.begin() + i + order};
+            ngrams.insert(ngrams.end(), current_ngram);
+            ngrams_counts[join({current_ngram.begin(), current_ngram.end() - 1})][current_ngram[(current_ngram.size() -
+                                                                                                 1)]] += 1;
+        }
+        return ngrams;
     }
 };
