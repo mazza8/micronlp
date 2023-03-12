@@ -9,7 +9,7 @@ int main() {
                                      {"a", "b", "c", "d", "c", "e", "f"}};
 
 
-    MLE lm(2);
+    MLE lm(3);
     lm.fit(text);
     cout << lm.perplexity({{"a", "b"},
                            {"b", "c"}}) << endl;

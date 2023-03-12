@@ -9,7 +9,7 @@ public:
     int order;
     float gamma;
     string unk_label;
-    set<string> counts;
+    set<string> vocabulary;
 
     map<string, map<string, int>> ngrams_counts;
 
@@ -22,8 +22,15 @@ public:
     void fit(vector<vector<string>> corpus) {
         for (vector<string> &sentence: corpus) {
             vector<string> padded_sentence = pad_sentence(sentence);
-            vector<vector<string>> sentence_ngrams = build_ngrams(padded_sentence);
-            counts.insert(padded_sentence.begin(), padded_sentence.end());
+            vocabulary.insert(padded_sentence.begin(), padded_sentence.end());
+            for (long unsigned int o = 1; o <= order; o++) {
+                for (long unsigned int i = 0; i <= padded_sentence.size() - o; i++) {
+                    vector<string> current_ngram = {padded_sentence.begin() + i, padded_sentence.begin() + i + o};
+                    ngrams_counts[join({current_ngram.begin(), current_ngram.end() - 1})][current_ngram[(
+                            current_ngram.size() -
+                            1)]] += 1;
+                }
+            }
         }
     }
 
@@ -35,8 +42,8 @@ public:
             for (auto word: ngrams_counts[context]) {
                 norm_count += word.second;
             }
-            float word_count = ngrams_counts[context][ngram.at(ngram.size() - 1)];
-            float ngram_score = (word_count + gamma) / (norm_count + (counts.size() + 1) * gamma);
+            float word_count = ngrams_counts[context][ngram[(ngram.size() - 1)]];
+            float ngram_score = (word_count + gamma) / (norm_count + (vocabulary.size() + 1) * gamma);
             score += (ngram_score) ? log2(ngram_score) : -INFINITY;
         }
         return pow(2, -score / ngrams.size());
@@ -55,16 +62,5 @@ private:
         sentence.insert(sentence.begin(), order - 1, "<s>");
         sentence.insert(sentence.end(), order - 1, "</s>");
         return sentence;
-    }
-
-    vector<vector<string>> build_ngrams(vector<string> sentence) {
-        vector<vector<string>> ngrams;
-        for (long unsigned int i = 0; i <= sentence.size() - order; i++) {
-            vector<string> current_ngram = {sentence.begin() + i, sentence.begin() + i + order};
-            ngrams.insert(ngrams.end(), current_ngram);
-            ngrams_counts[join({current_ngram.begin(), current_ngram.end() - 1})][current_ngram[(current_ngram.size() -
-                                                                                                 1)]] += 1;
-        }
-        return ngrams;
     }
 };
