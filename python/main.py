@@ -1,31 +1,18 @@
-import timeit
-
+from nltk.lm.models import Lidstone
 from nltk.lm.models import MLE as nltk_MLE
+from nltk.lm.preprocessing import padded_everygram_pipeline
 
-from micronlp import MLE as micronlp_MLE
-from micronlp import edit_distance
+nltk_lm = nltk_MLE(2)
 
-print(edit_distance("rain", "shine"))
-
-lm = micronlp_MLE(2)
+ld = Lidstone(1, 2)
 
 text = [["a", "b", "d"], ["a", "b", "c", "d", "c", "e", "f"]]
 
-print(timeit.timeit(lambda: lm.fit(text), number=1000))
+train, vocab = padded_everygram_pipeline(2, text)
+nltk_lm.fit(train, vocab)
+train, vocab = padded_everygram_pipeline(2, text)
 
-print(timeit.timeit(lambda: lm.perplexity([["a", "b"],
-                                           ["b", "c"]]), number=10000))
+ld.fit(train, vocab)
 
-lm = nltk_MLE(2)
-
-from nltk.lm.preprocessing import padded_everygram_pipeline
-
-
-def temp():
-    train, vocab = padded_everygram_pipeline(2, text)
-    lm.fit(train, vocab)
-
-
-print(timeit.timeit(lambda: temp()
-                    , number=1000))
-print(timeit.timeit(lambda: lm.perplexity([("a", "b"), ("b", "c")]), number=10000))
+print(ld.perplexity([("a", "b"), ("b", "c")]))
+print(nltk_lm.perplexity([("a", "b"), ("b", "c")]))
