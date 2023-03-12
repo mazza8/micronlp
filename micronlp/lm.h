@@ -45,7 +45,7 @@ public:
     }
 
 protected:
-    float compute_score(string context, string word) {
+    virtual float compute_score(string context, string word) {
         float norm_count = 0;
         for (auto context_word: ngrams_counts[context]) {
             norm_count += context_word.second;
@@ -73,7 +73,6 @@ private:
 
 class StupidBackoff : public MLE {
 public:
-
     StupidBackoff(int order, float alpha = 0.4, string unk_label = "<UNK>") : MLE(order, 0, unk_label) {
         this->alpha = alpha;
     }
