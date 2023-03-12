@@ -38,15 +38,21 @@ public:
         float score = 0;
         for (auto ngram: ngrams) {
             string context = join({ngram.begin(), ngram.end() - 1});
-            float norm_count = 0;
-            for (auto word: ngrams_counts[context]) {
-                norm_count += word.second;
-            }
-            float word_count = ngrams_counts[context][ngram[(ngram.size() - 1)]];
-            float ngram_score = (word_count + gamma) / (norm_count + (vocabulary.size() + 1) * gamma);
+            float ngram_score = compute_score(context, ngram[(ngram.size() - 1)]);
             score += (ngram_score) ? log2(ngram_score) : -INFINITY;
         }
         return pow(2, -score / ngrams.size());
+    }
+
+protected:
+    float compute_score(string context, string word) {
+        float norm_count = 0;
+        for (auto context_word: ngrams_counts[context]) {
+            norm_count += context_word.second;
+        }
+        float word_count = ngrams_counts[context][word];
+        float ngram_score = (word_count + gamma) / (norm_count + (vocabulary.size() + 1) * gamma);
+        return ngram_score;
     }
 
 private:
@@ -63,4 +69,21 @@ private:
         sentence.insert(sentence.end(), order - 1, "</s>");
         return sentence;
     }
+};
+
+class StupidBackoff : public MLE {
+public:
+
+    StupidBackoff(int order, float alpha = 0.4, string unk_label = "<UNK>") : MLE(order, 0, unk_label) {
+        this->alpha = alpha;
+    }
+
+protected:
+    float compute_score(string context, string word) {
+        float score = MLE::compute_score(context, word);
+        return score == 0 ? alpha * compute_score(context.substr(1, context.size() - 1), word) : score;
+    }
+
+private:
+    float alpha;
 };
